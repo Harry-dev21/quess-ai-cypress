@@ -1,6 +1,9 @@
 name: Cypress Tests
 
-on: [push]
+on:
+  push:
+  schedule:
+    - cron: '30 2 * * *' # 8:00 AM IST
 
 jobs:
   cypress-run:
@@ -24,13 +27,107 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Install reporter
+        run: npm install mochawesome mochawesome-merge mochawesome-report-generator --save-dev
+
       - name: Cypress run
+        id: cypress
+        continue-on-error: true
         uses: cypress-io/github-action@v7
         with:
           wait-on: 'https://qts-dev.quesscorp.com/'
           wait-on-timeout: 120
           record: true
           parallel: true
+          command: >
+            npx cypress run
+            --reporter mochawesome
+            --reporter-options reportDir=cypress/reports,overwrite=false,html=false,json=true
         env:
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Merge reports
+        run: npx mochawesome-merge cypress/reports/*.json > cypress/reports/merged.json
+
+      - name: Generate HTML report
+        run: npx marge cypress/reports/merged.json --reportDir cypress/reports --reportFilename report
+
+      - name: Extract Test Results
+        id: results
+        run: |
+          PASSED=$(jq '.stats.passes' cypress/reports/merged.json)
+          FAILED=$(jq '.stats.failures' cypress/reports/merged.json)
+          TOTAL=$(jq '.stats.tests' cypress/reports/merged.json)
+
+          if [ "$FAILED" -gt 0 ]; then
+            STATUS="FAILED ❌"
+          else
+            STATUS="PASSED ✅"
+          fi
+
+          echo "passed=$PASSED" >> $GITHUB_OUTPUT
+          echo "failed=$FAILED" >> $GITHUB_OUTPUT
+          echo "total=$TOTAL" >> $GITHUB_OUTPUT
+          echo "status=$STATUS" >> $GITHUB_OUTPUT
+
+      - name: Upload Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-report
+          path: cypress/reports
+
+      # 📧 EMAIL (SUCCESS + FAILURE)
+      - name: Send Email
+        if: always()
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.EMAIL_USERNAME }}
+          password: ${{ secrets.EMAIL_PASSWORD }}
+          subject: "Cypress Test Results - ${{ steps.results.outputs.status }}"
+          to: your-email@example.com
+          from: Cypress CI <${{ secrets.EMAIL_USERNAME }}>
+          attachments: cypress/reports/report.html
+          html_body: |
+            <h2>🧪 Cypress Test Execution</h2>
+
+            <p><b>Status:</b> ${{ steps.results.outputs.status }}</p>
+
+            <h3>📊 Summary</h3>
+            <ul>
+              <li>✅ Passed: ${{ steps.results.outputs.passed }}</li>
+              <li>❌ Failed: ${{ steps.results.outputs.failed }}</li>
+              <li>📦 Total: ${{ steps.results.outputs.total }}</li>
+            </ul>
+
+            <h3>🔗 Links</h3>
+            <ul>
+              <li><a href="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}">View Workflow Run</a></li>
+            </ul>
+
+            <p>
+              ${{ steps.results.outputs.failed > 0 && '❗ Some tests failed. Please investigate immediately.' || '🎉 All tests passed successfully. System is stable.' }}
+            </p>
+
+      # 💬 TEAMS NOTIFICATION
+      - name: Send Teams Notification
+        if: always()
+        run: |
+          STATUS="${{ steps.results.outputs.status }}"
+          PASSED="${{ steps.results.outputs.passed }}"
+          FAILED="${{ steps.results.outputs.failed }}"
+          TOTAL="${{ steps.results.outputs.total }}"
+          RUN_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+
+          curl -H "Content-Type: application/json" -d "{
+            \"text\": \"🧪 Cypress Test Run: $STATUS\n\n📊 Passed: $PASSED | Failed: $FAILED | Total: $TOTAL\n\n🔗 $RUN_URL\"
+          }" ${{ secrets.TEAMS_WEBHOOK_URL }}
+
+        if: steps.results.outputs.failed != '0'
+
+      # Fail job at end if tests failed
+      - name: Fail job if tests failed
+        if: steps.results.outputs.failed != '0'
+        run: exit 1
