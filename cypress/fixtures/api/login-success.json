@@ -1,9 +1,0 @@
-{
-  "token": "fake-jwt-token",
-  "user": {
-    "id": 1,
-    "name": "Agent A1",
-    "role": "Agent",
-    "department": "Payroll"
-  }
-}

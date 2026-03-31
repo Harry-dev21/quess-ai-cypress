@@ -1,0 +1,23 @@
+{
+  "login": {
+    "validEmail": "agent@mailinator.com",
+    "validPassword": "Agent@123",
+    "adminValidEmail": "admin@quess.com",
+    "adminValidPassword": "admin@123"
+  },
+  "categories": {
+    "defaultSortOrder": "0",
+    "categoryPrefix": "Automation Category",
+    "subcategoryPrefix": "Automation Subcategory",
+    "categoryDescriptionPrefix": "Created by Cypress automation",
+    "subcategoryDescriptionPrefix": "Subcategory created by Cypress automation"
+  },
+  "tickets": {
+    "associateEmail": "qa.ticket@quess.com",
+    "subjectPrefix": "Automation Ticket",
+    "invalidAssociateEmail": "abc",
+    "description": "This ticket was created by Cypress automation.",
+    "priority": "Medium",
+    "queryType": "Payroll"
+  }
+}

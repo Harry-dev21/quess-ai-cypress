@@ -4,15 +4,19 @@ on:
   push:
   schedule:
     - cron: '30 2 * * *' # 8:00 AM IST
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
 
 jobs:
   cypress-run:
     runs-on: ubuntu-latest
-
-    strategy:
-      fail-fast: false
-      matrix:
-        containers: [1, 2]
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
       - name: Checkout
@@ -25,12 +29,11 @@ jobs:
           cache: npm
 
       - name: Install dependencies
-        run: npm install
+        run: |
+          npm ci
+          npm install --save-dev mochawesome mochawesome-merge mochawesome-report-generator
 
-      - name: Install reporter
-        run: npm install mochawesome mochawesome-merge mochawesome-report-generator --save-dev
-
-      - name: Cypress run
+      - name: Run Cypress
         id: cypress
         continue-on-error: true
         uses: cypress-io/github-action@v7
@@ -38,27 +41,42 @@ jobs:
           wait-on: 'https://qts-dev.quesscorp.com/'
           wait-on-timeout: 120
           record: true
-          parallel: true
-          command: >
-            npx cypress run
-            --reporter mochawesome
-            --reporter-options reportDir=cypress/reports,overwrite=false,html=false,json=true
         env:
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Merge reports
-        run: npx mochawesome-merge cypress/reports/*.json > cypress/reports/merged.json
+        if: always()
+        run: |
+          mkdir -p merged-results
+          npx mochawesome-merge cypress/reports/*.json > merged-results/merged.json
 
       - name: Generate HTML report
-        run: npx marge cypress/reports/merged.json --reportDir cypress/reports --reportFilename report
-
-      - name: Extract Test Results
-        id: results
+        if: always()
         run: |
-          PASSED=$(jq '.stats.passes' cypress/reports/merged.json)
-          FAILED=$(jq '.stats.failures' cypress/reports/merged.json)
-          TOTAL=$(jq '.stats.tests' cypress/reports/merged.json)
+          mkdir -p site/report
+          npx marge merged-results/merged.json \
+            --reportDir site/report \
+            --reportFilename index
+
+      - name: Extract test results
+        if: always()
+        id: results
+        shell: bash
+        run: |
+          PASSED=$(jq '.stats.passes' merged-results/merged.json)
+          FAILED=$(jq '.stats.failures' merged-results/merged.json)
+          TOTAL=$(jq '.stats.tests' merged-results/merged.json)
+          SKIPPED=$(jq '.stats.pending' merged-results/merged.json)
+          DURATION_MS=$(jq '.stats.duration' merged-results/merged.json)
+
+          if [ "$TOTAL" -gt 0 ]; then
+            PASS_RATE=$(awk "BEGIN { printf \"%.2f\", ($PASSED/$TOTAL)*100 }")
+          else
+            PASS_RATE="0.00"
+          fi
+
+          DURATION_SEC=$((DURATION_MS / 1000))
 
           if [ "$FAILED" -gt 0 ]; then
             STATUS="FAILED ❌"
@@ -69,15 +87,141 @@ jobs:
           echo "passed=$PASSED" >> $GITHUB_OUTPUT
           echo "failed=$FAILED" >> $GITHUB_OUTPUT
           echo "total=$TOTAL" >> $GITHUB_OUTPUT
+          echo "skipped=$SKIPPED" >> $GITHUB_OUTPUT
+          echo "duration=${DURATION_SEC}s" >> $GITHUB_OUTPUT
+          echo "pass_rate=${PASS_RATE}%" >> $GITHUB_OUTPUT
           echo "status=$STATUS" >> $GITHUB_OUTPUT
 
-      - name: Upload Report
-        uses: actions/upload-artifact@v4
-        with:
-          name: cypress-report
-          path: cypress/reports
+      - name: Prepare screenshots and videos for Pages
+        if: always()
+        shell: bash
+        run: |
+          mkdir -p site/screenshots site/videos
 
-      # 📧 EMAIL (SUCCESS + FAILURE)
+          if [ -d cypress/screenshots ]; then
+            cp -R cypress/screenshots/* site/screenshots/ || true
+          fi
+
+          if [ -d cypress/videos ]; then
+            cp -R cypress/videos/* site/videos/ || true
+          fi
+
+      - name: Build screenshots page
+        if: always()
+        shell: bash
+        run: |
+          cat > site/screenshots/index.html <<'EOF'
+          <!doctype html>
+          <html>
+          <head>
+            <meta charset="utf-8">
+            <title>Cypress Screenshots</title>
+            <style>
+              body { font-family: Arial, sans-serif; padding: 24px; }
+              img { max-width: 100%; border: 1px solid #ddd; margin-bottom: 20px; }
+              .item { margin-bottom: 30px; }
+              a { text-decoration: none; }
+            </style>
+          </head>
+          <body>
+            <h1>Cypress Screenshots</h1>
+            <p><a href="../index.html">← Back to Summary</a></p>
+          EOF
+
+          find site/screenshots -type f \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.jpeg" \) ! -name "index.html" | sort | while read file; do
+            rel="${file#site/screenshots/}"
+            echo "<div class=\"item\"><h3>${rel}</h3><a href=\"./${rel}\"><img src=\"./${rel}\" alt=\"${rel}\"></a></div>" >> site/screenshots/index.html
+          done
+
+          echo "</body></html>" >> site/screenshots/index.html
+
+      - name: Build videos page
+        if: always()
+        shell: bash
+        run: |
+          cat > site/videos/index.html <<'EOF'
+          <!doctype html>
+          <html>
+          <head>
+            <meta charset="utf-8">
+            <title>Cypress Videos</title>
+            <style>
+              body { font-family: Arial, sans-serif; padding: 24px; }
+              video { width: 100%; max-width: 900px; margin-bottom: 20px; border: 1px solid #ddd; }
+              .item { margin-bottom: 30px; }
+              a { text-decoration: none; }
+            </style>
+          </head>
+          <body>
+            <h1>Cypress Videos</h1>
+            <p><a href="../index.html">← Back to Summary</a></p>
+          EOF
+
+          find site/videos -type f -iname "*.mp4" ! -name "index.html" | sort | while read file; do
+            rel="${file#site/videos/}"
+            echo "<div class=\"item\"><h3>${rel}</h3><video controls src=\"./${rel}\"></video><p><a href=\"./${rel}\">Open video directly</a></p></div>" >> site/videos/index.html
+          done
+
+          echo "</body></html>" >> site/videos/index.html
+
+      - name: Build summary portal
+        if: always()
+        shell: bash
+        run: |
+          CLOUD_URL="${{ steps.cypress.outputs.resultsUrl }}"
+          WORKFLOW_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+
+          cat > site/index.html <<EOF
+          <!doctype html>
+          <html>
+          <head>
+            <meta charset="utf-8">
+            <title>Cypress Test Summary</title>
+            <style>
+              body { font-family: Arial, sans-serif; padding: 24px; max-width: 900px; margin: auto; }
+              .card { border: 1px solid #ddd; border-radius: 10px; padding: 20px; margin-bottom: 20px; }
+              .links a { display: block; margin: 10px 0; }
+              ul { line-height: 1.8; }
+            </style>
+          </head>
+          <body>
+            <h1>🧪 Cypress Test Summary</h1>
+
+            <div class="card">
+              <h2>Status: ${{ steps.results.outputs.status }}</h2>
+              <ul>
+                <li><b>Total:</b> ${{ steps.results.outputs.total }}</li>
+                <li><b>Passed:</b> ${{ steps.results.outputs.passed }}</li>
+                <li><b>Failed:</b> ${{ steps.results.outputs.failed }}</li>
+                <li><b>Skipped:</b> ${{ steps.results.outputs.skipped }}</li>
+                <li><b>Duration:</b> ${{ steps.results.outputs.duration }}</li>
+                <li><b>Pass Rate:</b> ${{ steps.results.outputs.pass_rate }}</li>
+              </ul>
+            </div>
+
+            <div class="card links">
+              <h2>Links</h2>
+              <a href="./report/index.html">📄 Open HTML Report</a>
+              <a href="./screenshots/index.html">🖼 Open Screenshots</a>
+              <a href="./videos/index.html">🎥 Open Videos</a>
+              <a href="${CLOUD_URL}">☁ Open Cypress Cloud Run (logs, debugging, screenshots, videos)</a>
+              <a href="${WORKFLOW_URL}">⚙ Open GitHub Workflow Run</a>
+            </div>
+          </body>
+          </html>
+          EOF
+
+      - name: Upload Pages artifact
+        if: always()
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+      - name: Deploy to GitHub Pages
+        if: always()
+        id: deployment
+        uses: actions/deploy-pages@v4
+
       - name: Send Email
         if: always()
         uses: dawidd6/action-send-mail@v3
@@ -89,7 +233,6 @@ jobs:
           subject: "Cypress Test Results - ${{ steps.results.outputs.status }}"
           to: your-email@example.com
           from: Cypress CI <${{ secrets.EMAIL_USERNAME }}>
-          attachments: cypress/reports/report.html
           html_body: |
             <h2>🧪 Cypress Test Execution</h2>
 
@@ -97,37 +240,58 @@ jobs:
 
             <h3>📊 Summary</h3>
             <ul>
+              <li>📦 Total: ${{ steps.results.outputs.total }}</li>
               <li>✅ Passed: ${{ steps.results.outputs.passed }}</li>
               <li>❌ Failed: ${{ steps.results.outputs.failed }}</li>
-              <li>📦 Total: ${{ steps.results.outputs.total }}</li>
+              <li>⏭️ Skipped: ${{ steps.results.outputs.skipped }}</li>
+              <li>⏱️ Duration: ${{ steps.results.outputs.duration }}</li>
+              <li>📈 Pass Rate: ${{ steps.results.outputs.pass_rate }}</li>
             </ul>
 
-            <h3>🔗 Links</h3>
+            <h3>🔗 Main Report Link</h3>
             <ul>
-              <li><a href="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}">View Workflow Run</a></li>
+              <li><a href="${{ steps.deployment.outputs.page_url }}">Open Full Test Portal</a></li>
+              <li><a href="${{ steps.deployment.outputs.page_url }}report/index.html">Open HTML Report</a></li>
+              <li><a href="${{ steps.deployment.outputs.page_url }}screenshots/index.html">Open Screenshots</a></li>
+              <li><a href="${{ steps.deployment.outputs.page_url }}videos/index.html">Open Videos</a></li>
+              <li><a href="${{ steps.cypress.outputs.resultsUrl }}">Open Cypress Cloud Run</a></li>
             </ul>
 
-            <p>
-              ${{ steps.results.outputs.failed > 0 && '❗ Some tests failed. Please investigate immediately.' || '🎉 All tests passed successfully. System is stable.' }}
-            </p>
-
-      # 💬 TEAMS NOTIFICATION
       - name: Send Teams Notification
         if: always()
+        shell: bash
         run: |
-          STATUS="${{ steps.results.outputs.status }}"
-          PASSED="${{ steps.results.outputs.passed }}"
-          FAILED="${{ steps.results.outputs.failed }}"
-          TOTAL="${{ steps.results.outputs.total }}"
-          RUN_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          PORTAL_URL="${{ steps.deployment.outputs.page_url }}"
+          REPORT_URL="${{ steps.deployment.outputs.page_url }}report/index.html"
+          SCREENSHOTS_URL="${{ steps.deployment.outputs.page_url }}screenshots/index.html"
+          VIDEOS_URL="${{ steps.deployment.outputs.page_url }}videos/index.html"
+          CLOUD_URL="${{ steps.cypress.outputs.resultsUrl }}"
 
           curl -H "Content-Type: application/json" -d "{
-            \"text\": \"🧪 Cypress Test Run: $STATUS\n\n📊 Passed: $PASSED | Failed: $FAILED | Total: $TOTAL\n\n🔗 $RUN_URL\"
+            \"@type\": \"MessageCard\",
+            \"@context\": \"http://schema.org/extensions\",
+            \"themeColor\": \"0076D7\",
+            \"summary\": \"Cypress Test Run - ${{ steps.results.outputs.status }}\",
+            \"sections\": [{
+              \"activityTitle\": \"🧪 Cypress Test Run - ${{ steps.results.outputs.status }}\",
+              \"markdown\": true,
+              \"facts\": [
+                {\"name\": \"Total\", \"value\": \"${{ steps.results.outputs.total }}\"},
+                {\"name\": \"Passed\", \"value\": \"${{ steps.results.outputs.passed }}\"},
+                {\"name\": \"Failed\", \"value\": \"${{ steps.results.outputs.failed }}\"},
+                {\"name\": \"Skipped\", \"value\": \"${{ steps.results.outputs.skipped }}\"},
+                {\"name\": \"Duration\", \"value\": \"${{ steps.results.outputs.duration }}\"},
+                {\"name\": \"Pass Rate\", \"value\": \"${{ steps.results.outputs.pass_rate }}\"}
+              ],
+              \"text\": \"[Open Full Test Portal]($PORTAL_URL)<br>[HTML Report]($REPORT_URL)<br>[Screenshots]($SCREENSHOTS_URL)<br>[Videos]($VIDEOS_URL)<br>[Cypress Cloud Logs/Debug]($CLOUD_URL)\"
+            }],
+            \"potentialAction\": [{
+              \"@type\": \"OpenUri\",
+              \"name\": \"Open Full Test Portal\",
+              \"targets\": [{ \"os\": \"default\", \"uri\": \"$PORTAL_URL\" }]
+            }]
           }" ${{ secrets.TEAMS_WEBHOOK_URL }}
 
-        
-
-      # Fail job at end if tests failed
-      - name: Fail job if tests failed
-        if: steps.results.outputs.failed != '0'
+      - name: Fail workflow if tests failed
+        if: always() && steps.results.outputs.failed != '0'
         run: exit 1
