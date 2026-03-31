@@ -125,7 +125,7 @@ jobs:
             \"text\": \"🧪 Cypress Test Run: $STATUS\n\n📊 Passed: $PASSED | Failed: $FAILED | Total: $TOTAL\n\n🔗 $RUN_URL\"
           }" ${{ secrets.TEAMS_WEBHOOK_URL }}
 
-        if: steps.results.outputs.failed != '0'
+        
 
       # Fail job at end if tests failed
       - name: Fail job if tests failed
