@@ -1,0 +1,8 @@
+{
+  "token": "fake-jwt-token",
+  "user": {
+    "id": 1,
+    "name": "Agent Automation",
+    "email": "agent@mailinator.com"
+  }
+}

@@ -4,7 +4,7 @@ Cypress.Commands.add('loginUI', (username, password) => {
   cy.visit('/login')
   cy.get(selectors.login.username).type(username)
   cy.get(selectors.login.password).type(password, { log: false })
-  cy.get(selectors.login.submit).click()
+  cy.contains('button', 'Sign in').click()
 })
 
 Cypress.Commands.add('mockLoginSuccess', () => {

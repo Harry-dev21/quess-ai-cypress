@@ -1,0 +1,8 @@
+{
+  "id": 12345,
+  "subject": "Automation Ticket created",
+  "description": "This ticket was created by Cypress automation.",
+  "associateEmail": "qa.ticket@quess.com",
+  "status": "Open",
+  "createdAt": "2026-04-01T00:00:00Z"
+}

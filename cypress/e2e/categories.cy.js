@@ -1,58 +1,38 @@
 // cypress/e2e/categories.cy.js
 
-describe("Quess Support - Categories Module", () => {
-  const loginSelectors = {
-    emailInput: "#email",
-    passwordInput: "#password",
-    signInButton: "button",
-  };
+import { selectors as appSelectors } from '../support/selectors'
 
-  const selectors = {
-    pageTitle: "h1",
-    createCategoryButton: "button",
+describe('Quess Support - Categories Module', () => {
+  const selectors = appSelectors.categories
 
-    categoryNameInput: "#cat-name",
-    categorySlugInput: "#cat-slug",
-    categoryDescriptionInput: "#cat-description",
-    categorySortOrderInput: "#cat-sort-order",
+  let testData
 
-    tableRows: "table tbody tr",
-  };
-
-  const texts = {
-    signInButton: "Sign in",
-    pageTitle: "Categories",
-    createCategoryButton: "Create Category",
-    createButton: "Create",
-  };
-
-  const data = {
-    validEmail: Cypress.env("LOGIN_EMAIL") || "agent@mailinator.com",
-    validPassword: Cypress.env("LOGIN_PASSWORD") || "Agent@123",
-  };
+  before(() => {
+    cy.fixture('testData').then((data) => {
+      testData = data
+    })
+  })
 
   beforeEach(() => {
-    cy.visit("/login");
+    const credentials = {
+      email: Cypress.env('LOGIN_EMAIL') || testData.login.validEmail,
+      password: Cypress.env('LOGIN_PASSWORD') || testData.login.validPassword,
+    }
 
-    cy.get(loginSelectors.emailInput)
-      .should("be.visible")
-      .clear()
-      .type(data.validEmail);
+    cy.loginUI(credentials.email, credentials.password)
+    cy.url({ timeout: 15000 }).should('not.include', '/login')
 
-    cy.get(loginSelectors.passwordInput)
-      .should("be.visible")
-      .clear()
-      .type(data.validPassword);
+    cy.visit('/admin/categories')
+    cy.contains(selectors.pageTitle, 'Categories', { timeout: 15000 }).should('be.visible')
+  })
 
-    cy.contains(loginSelectors.signInButton, texts.signInButton)
-      .should("be.visible")
-      .click();
+  const texts = {
+    signInButton: 'Sign in',
+    pageTitle: 'Categories',
+    createCategoryButton: 'Create Category',
+    createButton: 'Create',
+  }
 
-    cy.url({ timeout: 15000 }).should("not.include", "/login");
-
-    cy.visit("/admin/categories");
-    cy.contains(selectors.pageTitle, texts.pageTitle, { timeout: 15000 }).should("be.visible");
-  });
 
   function slugify(value) {
     return value
@@ -65,14 +45,14 @@ describe("Quess Support - Categories Module", () => {
 
   function createCategoryData() {
     const unique = Date.now();
-    const name = `Automation Category ${unique}`;
+    const name = `${testData.categories.categoryPrefix} ${unique}`;
 
     return {
       name,
       slug: slugify(name),
-      description: `Created ${unique}`,
-      sortOrder: "0",
-    };
+      description: `${testData.categories.categoryDescriptionPrefix} ${unique}`,
+      sortOrder: testData.categories.defaultSortOrder,
+    }
   }
 
   function openCreateCategoryModal() {

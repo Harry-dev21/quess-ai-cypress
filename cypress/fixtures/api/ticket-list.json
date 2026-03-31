@@ -1,0 +1,13 @@
+{
+  "tickets": [
+    {
+      "id": 12345,
+      "subject": "Automation Ticket 1",
+      "associateEmail": "qa.ticket@quess.com",
+      "status": "Open",
+      "category": "Payroll",
+      "department": "HR",
+      "priority": "Medium"
+    }
+  ]
+}

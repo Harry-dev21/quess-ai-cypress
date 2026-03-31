@@ -1,0 +1,316 @@
+{
+  "stats": {
+    "suites": 1,
+    "tests": 10,
+    "passes": 0,
+    "pending": 0,
+    "failures": 10,
+    "start": "2026-03-31T18:57:49.458Z",
+    "end": "2026-03-31T18:59:26.797Z",
+    "duration": 97339,
+    "testsRegistered": 10,
+    "passPercent": 0,
+    "pendingPercent": 0,
+    "other": 0,
+    "hasOther": false,
+    "skipped": 0,
+    "hasSkipped": false
+  },
+  "results": [
+    {
+      "uuid": "b552083f-9f00-4a72-bcfc-a40650b6405f",
+      "title": "",
+      "fullFile": "cypress\\e2e\\login.cy.js",
+      "file": "cypress\\e2e\\login.cy.js",
+      "beforeHooks": [],
+      "afterHooks": [],
+      "tests": [],
+      "suites": [
+        {
+          "uuid": "06455600-cbe0-4928-aa96-0a6826b15fa6",
+          "title": "Quess Support - Login Page",
+          "fullFile": "",
+          "file": "",
+          "beforeHooks": [],
+          "afterHooks": [],
+          "tests": [
+            {
+              "title": "TC01 - should display login page UI correctly",
+              "fullTitle": "Quess Support - Login Page TC01 - should display login page UI correctly",
+              "timedOut": null,
+              "duration": 11759,
+              "state": "failed",
+              "speed": null,
+              "pass": false,
+              "fail": true,
+              "pending": false,
+              "context": null,
+              "code": "cy.contains(texts.title).should(\"be.visible\");\ncy.contains(texts.subtitle).should(\"be.visible\");\ncy.contains(texts.emailLabel).should(\"be.visible\");\ncy.contains(texts.passwordLabel).should(\"be.visible\");\ncy.get(loginSelectors.username).should('be.visible').and('have.attr', 'placeholder', 'you@quess.com');\ncy.get(loginSelectors.password).should('be.visible').and('have.attr', 'placeholder', 'Enter your password');\ncy.get(loginSelectors.submit).contains(texts.signInButton).should('be.visible');",
+              "err": {
+                "message": "AssertionError: Timed out retrying after 10000ms: Expected to find element: `[data-testid=\"login-username\"]`, but never found it.",
+                "estack": "AssertionError: Timed out retrying after 10000ms: Expected to find element: `[data-testid=\"login-username\"]`, but never found it.\n    at Context.eval (webpack://quessai_cypress/./cypress/e2e/login.cy.js:82:7)",
+                "diff": null
+              },
+              "uuid": "fc78a4a7-8691-4f1d-ab0a-dc2bbd4685a9",
+              "parentUUID": "06455600-cbe0-4928-aa96-0a6826b15fa6",
+              "isHook": false,
+              "skipped": false
+            },
+            {
+              "title": "TC02 - should allow typing email and password",
+              "fullTitle": "Quess Support - Login Page TC02 - should allow typing email and password",
+              "timedOut": null,
+              "duration": 10863,
+              "state": "failed",
+              "speed": null,
+              "pass": false,
+              "fail": true,
+              "pending": false,
+              "context": null,
+              "code": "typeEmail(data.validEmail);\ntypePassword(data.validPassword);",
+              "err": {
+                "message": "AssertionError: Timed out retrying after 10000ms: Expected to find element: `[data-testid=\"login-username\"]`, but never found it.",
+                "estack": "AssertionError: Timed out retrying after 10000ms: Expected to find element: `[data-testid=\"login-username\"]`, but never found it.\n    at typeEmail (webpack://quessai_cypress/./cypress/e2e/login.cy.js:42:7)\n    at Context.eval (webpack://quessai_cypress/./cypress/e2e/login.cy.js:93:4)",
+                "diff": null
+              },
+              "uuid": "4918bcc9-be89-4955-9078-6e410c0f36ac",
+              "parentUUID": "06455600-cbe0-4928-aa96-0a6826b15fa6",
+              "isHook": false,
+              "skipped": false
+            },
+            {
+              "title": "TC03 - should show native validation when email is blank",
+              "fullTitle": "Quess Support - Login Page TC03 - should show native validation when email is blank",
+              "timedOut": null,
+              "duration": 10335,
+              "state": "failed",
+              "speed": null,
+              "pass": false,
+              "fail": true,
+              "pending": false,
+              "context": null,
+              "code": "typePassword(data.validPassword);\nclickSignIn();\nassertNativeValidationMessage(loginSelectors.username);\nassertFieldInvalid(loginSelectors.username);",
+              "err": {
+                "message": "AssertionError: Timed out retrying after 10000ms: Expected to find element: `[data-testid=\"login-password\"]`, but never found it.",
+                "estack": "AssertionError: Timed out retrying after 10000ms: Expected to find element: `[data-testid=\"login-password\"]`, but never found it.\n    at typePassword (webpack://quessai_cypress/./cypress/e2e/login.cy.js:50:7)\n    at Context.eval (webpack://quessai_cypress/./cypress/e2e/login.cy.js:98:4)",
+                "diff": null
+              },
+              "uuid": "33cedf2d-d19d-4adb-ac3c-d1165bb833b6",
+              "parentUUID": "06455600-cbe0-4928-aa96-0a6826b15fa6",
+              "isHook": false,
+              "skipped": false
+            },
+            {
+              "title": "TC04 - should show native validation when password is blank",
+              "fullTitle": "Quess Support - Login Page TC04 - should show native validation when password is blank",
+              "timedOut": null,
+              "duration": 10674,
+              "state": "failed",
+              "speed": null,
+              "pass": false,
+              "fail": true,
+              "pending": false,
+              "context": null,
+              "code": "typeEmail(data.validEmail);\nclickSignIn();\nassertNativeValidationMessage(loginSelectors.password);\nassertFieldInvalid(loginSelectors.password);",
+              "err": {
+                "message": "AssertionError: Timed out retrying after 10000ms: Expected to find element: `[data-testid=\"login-username\"]`, but never found it.",
+                "estack": "AssertionError: Timed out retrying after 10000ms: Expected to find element: `[data-testid=\"login-username\"]`, but never found it.\n    at typeEmail (webpack://quessai_cypress/./cypress/e2e/login.cy.js:42:7)\n    at Context.eval (webpack://quessai_cypress/./cypress/e2e/login.cy.js:106:4)",
+                "diff": null
+              },
+              "uuid": "99b00235-cff2-4c01-8720-6c2ff5d72946",
+              "parentUUID": "06455600-cbe0-4928-aa96-0a6826b15fa6",
+              "isHook": false,
+              "skipped": false
+            },
+            {
+              "title": "TC05 - should show native validation when both fields are blank",
+              "fullTitle": "Quess Support - Login Page TC05 - should show native validation when both fields are blank",
+              "timedOut": null,
+              "duration": 10416,
+              "state": "failed",
+              "speed": null,
+              "pass": false,
+              "fail": true,
+              "pending": false,
+              "context": null,
+              "code": "clickSignIn();\nassertNativeValidationMessage(loginSelectors.username);\nassertFieldInvalid(loginSelectors.username);\nassertFieldInvalid(loginSelectors.password);",
+              "err": {
+                "message": "AssertionError: Timed out retrying after 10000ms: Expected to find element: `[data-testid=\"login-submit\"]`, but never found it.",
+                "estack": "AssertionError: Timed out retrying after 10000ms: Expected to find element: `[data-testid=\"login-submit\"]`, but never found it.\n    at clickSignIn (webpack://quessai_cypress/./cypress/e2e/login.cy.js:58:7)\n    at Context.eval (webpack://quessai_cypress/./cypress/e2e/login.cy.js:114:4)",
+                "diff": null
+              },
+              "uuid": "1ec8eab9-bc97-4050-b897-a686f270611a",
+              "parentUUID": "06455600-cbe0-4928-aa96-0a6826b15fa6",
+              "isHook": false,
+              "skipped": false
+            },
+            {
+              "title": "TC06 - should show validation for invalid email format",
+              "fullTitle": "Quess Support - Login Page TC06 - should show validation for invalid email format",
+              "timedOut": null,
+              "duration": 10664,
+              "state": "failed",
+              "speed": null,
+              "pass": false,
+              "fail": true,
+              "pending": false,
+              "context": null,
+              "code": "typeEmail(data.badEmail);\ntypePassword(data.validPassword);\nclickSignIn();\ncy.get(loginSelectors.username).then($input => {\n  expect($input[0].checkValidity()).to.be.false;\n  expect($input[0].validationMessage).to.not.equal('');\n});",
+              "err": {
+                "message": "AssertionError: Timed out retrying after 10000ms: Expected to find element: `[data-testid=\"login-username\"]`, but never found it.",
+                "estack": "AssertionError: Timed out retrying after 10000ms: Expected to find element: `[data-testid=\"login-username\"]`, but never found it.\n    at typeEmail (webpack://quessai_cypress/./cypress/e2e/login.cy.js:42:7)\n    at Context.eval (webpack://quessai_cypress/./cypress/e2e/login.cy.js:122:4)",
+                "diff": null
+              },
+              "uuid": "7f19c205-89c2-4ab0-9fdb-23bcc40459c4",
+              "parentUUID": "06455600-cbe0-4928-aa96-0a6826b15fa6",
+              "isHook": false,
+              "skipped": false
+            },
+            {
+              "title": "TC07 - should toggle password visibility if eye icon is clickable",
+              "fullTitle": "Quess Support - Login Page TC07 - should toggle password visibility if eye icon is clickable",
+              "timedOut": null,
+              "duration": 10332,
+              "state": "failed",
+              "speed": null,
+              "pass": false,
+              "fail": true,
+              "pending": false,
+              "context": null,
+              "code": "typePassword(data.validPassword);\ncy.get(loginSelectors.password).should('have.attr', 'type').then(initialType => {\n  cy.get(loginSelectors.password).parent().find(passwordToggle).first().then($toggle => {\n    if ($toggle.length) {\n      cy.wrap($toggle).click({\n        force: true\n      });\n      cy.get(loginSelectors.password).invoke('attr', 'type').should(newType => {\n        expect(newType).to.not.equal(initialType);\n      });\n    }\n  });\n});",
+              "err": {
+                "message": "AssertionError: Timed out retrying after 10000ms: Expected to find element: `[data-testid=\"login-password\"]`, but never found it.",
+                "estack": "AssertionError: Timed out retrying after 10000ms: Expected to find element: `[data-testid=\"login-password\"]`, but never found it.\n    at typePassword (webpack://quessai_cypress/./cypress/e2e/login.cy.js:50:7)\n    at Context.eval (webpack://quessai_cypress/./cypress/e2e/login.cy.js:133:4)",
+                "diff": null
+              },
+              "uuid": "7b8a3c3f-eb79-4e5d-ab36-18e8c4e5cb88",
+              "parentUUID": "06455600-cbe0-4928-aa96-0a6826b15fa6",
+              "isHook": false,
+              "skipped": false
+            },
+            {
+              "title": "TC08 - should login successfully with valid credentials",
+              "fullTitle": "Quess Support - Login Page TC08 - should login successfully with valid credentials",
+              "timedOut": null,
+              "duration": 10739,
+              "state": "failed",
+              "speed": null,
+              "pass": false,
+              "fail": true,
+              "pending": false,
+              "context": null,
+              "code": "cy.intercept(\"POST\", \"**/login**\").as(\"loginRequest\"); // update endpoint if needed\ntypeEmail(data.validEmail);\ntypePassword(data.validPassword);\nclickSignIn();\ncy.wait(\"@loginRequest\", {\n  timeout: 10000\n}).then(interception => {\n  var _interception$respons;\n  expect((_interception$respons = interception.response) === null || _interception$respons === void 0 ? void 0 : _interception$respons.statusCode).to.be.oneOf([200, 201]);\n});\ncy.url().should(\"not.include\", \"/login\");",
+              "err": {
+                "message": "AssertionError: Timed out retrying after 10000ms: Expected to find element: `[data-testid=\"login-username\"]`, but never found it.",
+                "estack": "AssertionError: Timed out retrying after 10000ms: Expected to find element: `[data-testid=\"login-username\"]`, but never found it.\n    at typeEmail (webpack://quessai_cypress/./cypress/e2e/login.cy.js:42:7)\n    at Context.eval (webpack://quessai_cypress/./cypress/e2e/login.cy.js:159:4)",
+                "diff": null
+              },
+              "uuid": "93597dcc-9c7d-448a-a92a-c78524608f57",
+              "parentUUID": "06455600-cbe0-4928-aa96-0a6826b15fa6",
+              "isHook": false,
+              "skipped": false
+            },
+            {
+              "title": "TC09 - should show error for invalid credentials",
+              "fullTitle": "Quess Support - Login Page TC09 - should show error for invalid credentials",
+              "timedOut": null,
+              "duration": 10371,
+              "state": "failed",
+              "speed": null,
+              "pass": false,
+              "fail": true,
+              "pending": false,
+              "context": null,
+              "code": "cy.intercept(\"POST\", \"**/login**\").as(\"loginRequest\"); // update endpoint if needed\ntypeEmail(data.invalidEmail);\ntypePassword(data.invalidPassword);\nclickSignIn();\ncy.wait(\"@loginRequest\", {\n  timeout: 10000\n});\ncy.contains(/invalid credentials|Invalid email or password|login failed/i).should(\"be.visible\");",
+              "err": {
+                "message": "AssertionError: Timed out retrying after 10000ms: Expected to find element: `[data-testid=\"login-username\"]`, but never found it.",
+                "estack": "AssertionError: Timed out retrying after 10000ms: Expected to find element: `[data-testid=\"login-username\"]`, but never found it.\n    at typeEmail (webpack://quessai_cypress/./cypress/e2e/login.cy.js:42:7)\n    at Context.eval (webpack://quessai_cypress/./cypress/e2e/login.cy.js:173:4)",
+                "diff": null
+              },
+              "uuid": "27f71edf-c7f5-4956-8554-7be0a799f936",
+              "parentUUID": "06455600-cbe0-4928-aa96-0a6826b15fa6",
+              "isHook": false,
+              "skipped": false
+            },
+            {
+              "title": "TC10 - should keep Sign in button visible",
+              "fullTitle": "Quess Support - Login Page TC10 - should keep Sign in button visible",
+              "timedOut": null,
+              "duration": 624,
+              "state": "failed",
+              "speed": null,
+              "pass": false,
+              "fail": true,
+              "pending": false,
+              "context": null,
+              "code": "cy.contains(selectors.signInButton, texts.signInButton).should(\"be.visible\");",
+              "err": {
+                "message": "ReferenceError: selectors is not defined",
+                "estack": "ReferenceError: selectors is not defined\n    at Context.eval (webpack://quessai_cypress/./cypress/e2e/login.cy.js:183:16)\n    at runnable.fn (https://qts-dev.quesscorp.com/__cypress/runner/cypress_runner.js:146560:19)\n    at callFn (https://qts-dev.quesscorp.com/__cypress/runner/cypress_runner.js:165724:21)\n    at Runnable.run (https://qts-dev.quesscorp.com/__cypress/runner/cypress_runner.js:165711:7)\n    at <unknown> (https://qts-dev.quesscorp.com/__cypress/runner/cypress_runner.js:171809:30)\n    at PassThroughHandlerContext.finallyHandler (https://qts-dev.quesscorp.com/__cypress/runner/cypress_runner.js:4042:23)\n    at PassThroughHandlerContext.tryCatcher (https://qts-dev.quesscorp.com/__cypress/runner/cypress_runner.js:1777:23)\n    at Promise._settlePromiseFromHandler (https://qts-dev.quesscorp.com/__cypress/runner/cypress_runner.js:1489:31)\n    at Promise._settlePromise (https://qts-dev.quesscorp.com/__cypress/runner/cypress_runner.js:1546:18)",
+                "diff": null
+              },
+              "uuid": "eebbe2ca-db97-47d4-88fa-0ca59bc92250",
+              "parentUUID": "06455600-cbe0-4928-aa96-0a6826b15fa6",
+              "isHook": false,
+              "skipped": false
+            }
+          ],
+          "suites": [],
+          "passes": [],
+          "failures": [
+            "fc78a4a7-8691-4f1d-ab0a-dc2bbd4685a9",
+            "4918bcc9-be89-4955-9078-6e410c0f36ac",
+            "33cedf2d-d19d-4adb-ac3c-d1165bb833b6",
+            "99b00235-cff2-4c01-8720-6c2ff5d72946",
+            "1ec8eab9-bc97-4050-b897-a686f270611a",
+            "7f19c205-89c2-4ab0-9fdb-23bcc40459c4",
+            "7b8a3c3f-eb79-4e5d-ab36-18e8c4e5cb88",
+            "93597dcc-9c7d-448a-a92a-c78524608f57",
+            "27f71edf-c7f5-4956-8554-7be0a799f936",
+            "eebbe2ca-db97-47d4-88fa-0ca59bc92250"
+          ],
+          "pending": [],
+          "skipped": [],
+          "duration": 96777,
+          "root": false,
+          "rootEmpty": false,
+          "_timeout": 2000
+        }
+      ],
+      "passes": [],
+      "failures": [],
+      "pending": [],
+      "skipped": [],
+      "duration": 0,
+      "root": true,
+      "rootEmpty": true,
+      "_timeout": 2000
+    }
+  ],
+  "meta": {
+    "mocha": {
+      "version": "7.2.0"
+    },
+    "mochawesome": {
+      "options": {
+        "quiet": false,
+        "reportFilename": "mochawesome",
+        "saveHtml": false,
+        "saveJson": true,
+        "consoleReporter": "spec",
+        "useInlineDiffs": false,
+        "code": true
+      },
+      "version": "7.1.4"
+    },
+    "marge": {
+      "options": {
+        "reportDir": "cypress/reports",
+        "overwrite": false,
+        "html": false,
+        "json": true
+      },
+      "version": "6.3.2"
+    }
+  }
+}

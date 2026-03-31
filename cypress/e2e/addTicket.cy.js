@@ -1,26 +1,30 @@
 // cypress/e2e/add-ticket.cy.js
 
-describe("Quess Support - Add Ticket", () => {
-  const loginSelectors = {
-    emailInput: "#email",
-    passwordInput: "#password",
-    signInButton: "button",
-  };
+import { selectors as appSelectors } from '../support/selectors'
 
-  const selectors = {
-    pageTitle: "h1",
-    newTicketButton: ".sticky > .group\\/button",
+describe('Quess Support - Add Ticket', () => {
+  const selectors = appSelectors.tickets
 
-    subjectInput: "#subject",
-    descriptionEditor: ".tiptap",
-    associateEmailInput: "#associateEmail",
-    categoryDropdown: "#categoryId",
-    departmentDropdown: "#departmentId",
+  let testData
 
-    createTicketButton: "button",
-    ticketSearchInput: ".flex-wrap > .relative > .min-w-0",
-    ticketRows: ".space-y-6 > :nth-child(2)",
-  };
+  before(() => {
+    cy.fixture('testData').then((data) => {
+      testData = data
+    })
+  })
+
+  beforeEach(() => {
+    const credentials = {
+      email: Cypress.env('LOGIN_EMAIL') || testData.login.validEmail,
+      password: Cypress.env('LOGIN_PASSWORD') || testData.login.validPassword,
+    }
+
+    cy.loginUI(credentials.email, credentials.password)
+    cy.url({ timeout: 15000 }).should('not.include', '/login')
+
+    cy.visit('/tickets')
+    cy.contains(selectors.pageTitle, 'Tickets', { timeout: 15000 }).should('be.visible')
+  })
 
   const texts = {
     signInButton: "Sign in",
@@ -55,40 +59,12 @@ describe("Quess Support - Add Ticket", () => {
   };
 
   const data = {
-    validEmail: Cypress.env("LOGIN_EMAIL") || "agent@mailinator.com",
-    validPassword: Cypress.env("LOGIN_PASSWORD") || "Agent@123",
-
-    associateEmail: "qa.ticket@quess.com",
-    invalidAssociateEmail: "abc",
-    description: "This ticket was created by Cypress automation.",
-    priority: "Medium",
-    queryType: "Payroll", // update if needed
-  };
-
-  beforeEach(() => {
-    cy.visit("/login");
-
-    cy.get(loginSelectors.emailInput)
-      .should("be.visible")
-      .clear()
-      .type(data.validEmail)
-      .should("have.value", data.validEmail);
-
-    cy.get(loginSelectors.passwordInput)
-      .should("be.visible")
-      .clear()
-      .type(data.validPassword)
-      .should("have.value", data.validPassword);
-
-    cy.contains(loginSelectors.signInButton, texts.signInButton)
-      .should("be.visible")
-      .and("not.be.disabled")
-      .click();
-
-    cy.url({ timeout: 15000 }).should("not.include", "/login");
-    cy.visit("/tickets");
-    cy.contains(selectors.pageTitle, texts.ticketsPage, { timeout: 15000 }).should("be.visible");
-  });
+    associateEmail: testData?.tickets?.associateEmail || 'qa.ticket@quess.com',
+    invalidAssociateEmail: testData?.tickets?.invalidAssociateEmail || 'abc',
+    description: testData?.tickets?.description || 'This ticket was created by Cypress automation.',
+    priority: testData?.tickets?.priority || 'Medium',
+    queryType: testData?.tickets?.queryType || 'Payroll',
+  }
 
   function clickNewTicket() {
     cy.get(selectors.newTicketButton)

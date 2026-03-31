@@ -1,26 +1,30 @@
 export const selectors = {
   login: {
-    username: '[data-testid="login-username"]',
-    password: '[data-testid="login-password"]',
-    submit: '[data-testid="login-submit"]',
+    username: '#email',
+    password: '#password',
+    submit: 'button',
     error: '[data-testid="login-error"]'
   },
-  ticket: {
-    newButton: '[data-testid="new-ticket-button"]',
-    subject: '[data-testid="ticket-subject"]',
-    description: '[data-testid="ticket-description"]',
-    associateEmail: '[data-testid="associate-email"]',
-    category: '[data-testid="ticket-category"]',
-    department: '[data-testid="ticket-department"]',
-    priority: '[data-testid="ticket-priority"]',
-    assignee: '[data-testid="ticket-assignee"]',
-    save: '[data-testid="ticket-save"]',
-    ticketId: '[data-testid="ticket-id"]',
-    status: '[data-testid="ticket-status"]'
+  
+  categories: {
+    pageTitle: 'h1',
+    createCategoryButton: 'button',
+    categoryNameInput: '#cat-name',
+    categorySlugInput: '#cat-slug',
+    categoryDescriptionInput: '#cat-description',
+    categorySortOrderInput: '#cat-sort-order',
+    tableRows: 'table tbody tr'
   },
-  dashboard: {
-    openCount: '[data-testid="dashboard-open-count"]',
-    slaWarning: '[data-testid="dashboard-sla-warning"]',
-    slaBreached: '[data-testid="dashboard-sla-breached"]'
+  tickets: {
+    pageTitle: 'h1',
+    newTicketButton: '.sticky > .group\/button',
+    subjectInput: '#subject',
+    descriptionEditor: '.tiptap',
+    associateEmailInput: '#associateEmail',
+    categoryDropdown: '#categoryId',
+    departmentDropdown: '#departmentId',
+    createTicketButton: 'button',
+    ticketSearchInput: '.flex-wrap > .relative > .min-w-0',
+    ticketRows: '.space-y-6 > :nth-child(2)'
   }
 }
