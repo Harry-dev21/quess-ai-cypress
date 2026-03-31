@@ -1,0 +1,19 @@
+{
+  "agent": {
+    "username": "agent.a1",
+    "password": "Password123!",
+    "role": "Agent",
+    "department": "Payroll"
+  },
+  "admin": {
+    "username": "admin.1",
+    "password": "Password123!",
+    "role": "Admin"
+  },
+  "collaborator": {
+    "username": "collab.c1",
+    "password": "Password123!",
+    "role": "Collaborator",
+    "department": "ESIC"
+  }
+}

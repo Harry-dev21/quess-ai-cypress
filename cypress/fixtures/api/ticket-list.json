@@ -1,0 +1,20 @@
+{
+  "data": [
+    {
+      "id": "TKT-10001",
+      "subject": "Payroll mismatch for March",
+      "status": "Open",
+      "priority": "Medium",
+      "department": "Payroll",
+      "assignee": "Agent A1"
+    },
+    {
+      "id": "TKT-10002",
+      "subject": "ESIC eligibility check",
+      "status": "In Progress",
+      "priority": "High",
+      "department": "ESIC",
+      "assignee": "Collaborator C1"
+    }
+  ]
+}
