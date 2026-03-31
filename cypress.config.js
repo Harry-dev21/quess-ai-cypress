@@ -1,9 +1,9 @@
 const { defineConfig } = require('cypress')
 
 module.exports = defineConfig({
-  projectId: "wg4x7w",
+  projectId: 'wg4x7w',
   e2e: {
-    baseUrl: 'https://qts-dev.quesscorp.com/',
+    baseUrl: 'https://qts-dev.quesscorp.com',
     specPattern: 'cypress/e2e/**/*.cy.js',
     supportFile: 'cypress/support/e2e.js',
     video: true,
