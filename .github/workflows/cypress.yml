@@ -22,13 +22,13 @@ jobs:
           cache: npm
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install
 
       - name: Cypress run
         uses: cypress-io/github-action@v7
         with:
           start: npm start
-          wait-on: 'http://localhost:3000'
+          wait-on: 'https://qts-dev.quesscorp.com/'
           wait-on-timeout: 120
           record: true
           parallel: true
