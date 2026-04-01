@@ -22,6 +22,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Clean old report artifacts
+        run: |
+          rm -rf cypress/reports merged-results site
+          mkdir -p cypress/reports
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
@@ -49,7 +54,11 @@ jobs:
         if: always()
         run: |
           mkdir -p merged-results
-          npx mochawesome-merge cypress/reports/*.json > merged-results/merged.json
+          if ls cypress/reports/*.json 1> /dev/null 2>&1; then
+            npx mochawesome-merge cypress/reports/*.json > merged-results/merged.json
+          else
+            echo '{"stats":{"tests":0,"passes":0,"failures":0,"pending":0,"duration":0}}' > merged-results/merged.json
+          fi
 
       - name: Generate HTML report
         if: always()
